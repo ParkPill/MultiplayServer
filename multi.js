@@ -147,7 +147,7 @@ wsServer.on('request', function(request) {
                 }
 
                 //var underBarIndex = msg.indexOf('_');
-                var userInfo = msg.substring(1, msg.length - 1);
+                var userInfo = msg.substring(1, msg.length);
                 
 
                 connection.roomName = availableRoomName;
