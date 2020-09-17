@@ -81,8 +81,10 @@ wsServer.on('request', function(request) {
                 var users = '';
                 for (i = 0; i < rooms[roomName].length; i++) {
                     rooms[roomName][i].sendUTF(chatCode + connection.userName + ",");
+                    console.log("send peer " + chatCode + connection.userName + ",");
                     users += rooms[roomName][i].userName + ",";
                 }
+                console.log("send you " + chatCode + users);
                 connection.sendUTF(chatCode + users);
                 rooms[roomName].push(connection);
 
@@ -158,12 +160,15 @@ wsServer.on('request', function(request) {
                 var count = rooms[availableRoomName].length;
                 for (i = 0; i < count; i++) {
                     rooms[availableRoomName][i].sendUTF(chatCode + connection.userName);
+                    console.log("send peer return" + chatCode + connection.userName + ",");
                     if (i == count - 1) {
                         returnMsg += rooms[availableRoomName][i].userInfo;
                     } else {
                         returnMsg += rooms[availableRoomName][i].userInfo + ",";
                     }
                 }
+
+                console.log("send you return" + chatCode + returnMsg);
                 connection.sendUTF(chatCode + returnMsg);
                 rooms[availableRoomName].push(connection);
 
