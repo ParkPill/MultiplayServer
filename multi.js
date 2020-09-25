@@ -55,6 +55,7 @@ wsServer.on('request', function(request) {
             var msgContent = msg.substr(underBarIndex + 1, msg.length - underBarIndex - 1);
             
             var skipHistory = false;
+            var echoMsg = false;
             chatCode = msg.substring(0, 1);
             if (msg.substring(0, 1) == '0') { // join or create
                 var underBarIndex = msg.indexOf('_');
@@ -106,9 +107,7 @@ wsServer.on('request', function(request) {
                 connection.close();
                 skipHistory = true;
             } else if (msg.substring(0, 1) == '3') { // game start
-                for (i = 0; i < rooms[connection.roomName].length; i++) {
-                    rooms[connection.roomName][i].sendUTF(msg);
-                }
+                echoMsg = true;
             } else if (msg.substring(0, 1) == '4') { // unit move
 
             } else if (msg.substring(0, 1) == '5') { // unit move and attack
@@ -159,8 +158,8 @@ wsServer.on('request', function(request) {
                 var returnMsg = '';
                 var count = rooms[availableRoomName].length;
                 for (i = 0; i < count; i++) {
-                    rooms[availableRoomName][i].sendUTF(chatCode + connection.userName);
-                    console.log("send peer return" + chatCode + connection.userName + ",");
+                    rooms[availableRoomName][i].sendUTF(chatCode + connection.userInfo);
+                    console.log("send peer return" + chatCode + connection.userInfo + ",");
                     if (i == count - 1) {
                         returnMsg += rooms[availableRoomName][i].userInfo;
                     } else {
@@ -173,6 +172,13 @@ wsServer.on('request', function(request) {
                 rooms[availableRoomName].push(connection);
 
                 return;
+            } else if (msg.substring(0, 1) == 'b') { // not game start 
+                echoMsg = true;
+            }
+            if (echoMsg) {
+                for (i = 0; i < rooms[connection.roomName].length; i++) {
+                    rooms[connection.roomName][i].sendUTF(msg);
+                }
             }
             console.log("roomName: " + connection.roomName + "/connection: " + connection);
             console.log("connection.roomName: " + connection.roomName);
