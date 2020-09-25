@@ -32,9 +32,11 @@ var chatHistory = [];
 // 0 join or create
 // 1 msg
 // 2 quit
-wsServer.on('request', function(request) {
+wsServer.on('request', function (request) {
+    console.log('request');
     if (!originIsAllowed(request.origin)) {
       // Make sure we only accept requests from an allowed origin
+        console.log('request fail 0');
       request.reject();
       //console.log((new Date()) + ' Connection from origin ' + request.origin + ' rejected.');
       return;
