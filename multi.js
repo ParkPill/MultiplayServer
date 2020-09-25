@@ -55,7 +55,7 @@ wsServer.on('request', function(request) {
             var msgContent = msg.substr(underBarIndex + 1, msg.length - underBarIndex - 1);
             
             var skipHistory = false;
-            var echoMsg = false;
+            var echoMsg = true;
             chatCode = msg.substring(0, 1);
             if (msg.substring(0, 1) == '0') { // join or create
                 var underBarIndex = msg.indexOf('_');
@@ -113,7 +113,7 @@ wsServer.on('request', function(request) {
             } else if (msg.substring(0, 1) == '5') { // unit move and attack
 
             } else if (msg.substring(0, 1) == '6') { // construct
-
+                echoMsg = true;
             } else if (msg.substring(0, 1) == '7') { // destroy
 
             } else if (msg.substring(0, 1) == '8') { // unit dead
@@ -134,7 +134,6 @@ wsServer.on('request', function(request) {
                     }
                 }
 
-                
                 if (!isRoomAvailable) {
                     availableRoomName = 'r' + rooms.length + '_' + Math.floor((Math.random() * 100));
                     rooms[availableRoomName] = [];
@@ -148,7 +147,6 @@ wsServer.on('request', function(request) {
                 //var underBarIndex = msg.indexOf('_');
                 var userInfo = msg.substring(1, msg.length);
                 
-
                 connection.roomName = availableRoomName;
                 connection.index = rooms[availableRoomName].length;
                 connection.userInfo = userInfo;
@@ -177,14 +175,15 @@ wsServer.on('request', function(request) {
             }
             if (echoMsg) {
                 for (i = 0; i < rooms[connection.roomName].length; i++) {
+                    if (connection.index == i) continue;
                     rooms[connection.roomName][i].sendUTF(msg);
                 }
             }
             console.log("roomName: " + connection.roomName + "/connection: " + connection);
             console.log("connection.roomName: " + connection.roomName);
-            if (typeof connection !== 'undefined' && typeof connection.roomName !== 'undefined' && rooms.hasOwnProperty(connection.roomName)){
-                rooms[connection.roomName].forEach(myFunction);
-            }
+            //if (typeof connection !== 'undefined' && typeof connection.roomName !== 'undefined' && rooms.hasOwnProperty(connection.roomName)){
+            //    rooms[connection.roomName].forEach(myFunction);
+            //}
             if(!skipHistory){
                 chatHistory[connection.roomName].push(chatCode + msgContent);
                 if (chatHistory[connection.roomName].length > 50){
