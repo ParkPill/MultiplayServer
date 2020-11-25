@@ -175,7 +175,7 @@ wsServer.on('request', function (request) {
             } else if (msg.substring(0, 1) == 'b') { // not game start 
                 echoMsg = true;
             }
-            if (typeof connection !== 'undefined' && typeof connection.roomName !== 'undefined'){
+            if (typeof connection === 'undefined' && typeof connection.roomName === 'undefined'){
                 connection.close();
                 return;
             }
