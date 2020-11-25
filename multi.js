@@ -176,6 +176,7 @@ wsServer.on('request', function (request) {
                 echoMsg = true;
             }
             if (echoMsg) {
+                console.log("roomname: " + connection.roomName);
                 for (i = 0; i < rooms[connection.roomName].length; i++) {
                     if (connection.index == i) continue;
                     rooms[connection.roomName][i].sendUTF(msg);
