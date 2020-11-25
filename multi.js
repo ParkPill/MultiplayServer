@@ -180,6 +180,7 @@ wsServer.on('request', function (request) {
                 return;
             }
             if (echoMsg) {
+                console.log("connection: " + connection);
                 console.log("roomname: " + connection.roomName);
                 for (i = 0; i < rooms[connection.roomName].length; i++) {
                     if (connection.index == i) continue;
