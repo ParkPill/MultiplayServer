@@ -27,7 +27,7 @@ function originIsAllowed(origin) {
   return true;
 }
 var rooms = [];
-var chatHistory = [];
+//var chatHistory = [];
 // code
 // 0 join or create
 // 1 msg
@@ -66,30 +66,33 @@ wsServer.on('request', function (request) {
                 console.log("room name: " + roomName);
 
                 if (rooms[roomName] === undefined) {
-                    rooms[roomName] = [];
-                    chatHistory[roomName] = [];
+                    var room;
+                    room.isOpen = true;
+                    room.users = [];
+                    rooms[roomName] = room;
+//                    chatHistory[roomName] = [];
                     //                    console.log("create room: " + roomName);
-                }else if (rooms[roomName].length >= 2) {
+                }else if (rooms[roomName].users.length >= 2) {
                     // error code
                     // 0: full
                     connection.sendUTF("err_0");
                     return;
                 }
                 connection.roomName = roomName;
-                connection.index = rooms[roomName].length;
+                connection.index = rooms[roomName].users.length;
                 connection.userName = msgContent;
 
                 chatCode = '0';
                 var i = 0;
                 var users = '';
-                for (i = 0; i < rooms[roomName].length; i++) {
-                    rooms[roomName][i].sendUTF(chatCode + connection.userName + ",");
+                for (i = 0; i < rooms[roomName].users.length; i++) {
+                    rooms[roomName].users[i].sendUTF(chatCode + connection.userName + ",");
                     console.log("send peer " + chatCode + connection.userName + ",");
-                    users += rooms[roomName][i].userName + ",";
+                    users += rooms[roomName].users[i].userName + ",";
                 }
                 console.log("send you " + chatCode + users);
                 connection.sendUTF(chatCode + users);
-                rooms[roomName].push(connection);
+                rooms[roomName].users.push(connection);
 
                 return;
                 
@@ -128,7 +131,7 @@ wsServer.on('request', function (request) {
                 var availableRoomName;
                 for (var key in rooms) {
                     // check if the property/key is defined in the object itself, not in parent
-                    if (rooms.hasOwnProperty(key) && rooms[key].length < 2) {
+                    if (rooms.hasOwnProperty(key) && rooms[key].users.length < 2 && rooms[key].isOpen) {
                         console.log('room found: ' + key);
                         isRoomAvailable = true;
                         availableRoomName = key;
@@ -138,8 +141,10 @@ wsServer.on('request', function (request) {
 
                 if (!isRoomAvailable) {
                     availableRoomName = 'r' + rooms.length + '_' + Math.floor((Math.random() * 100));
-                    rooms[availableRoomName] = [];
-                    chatHistory[availableRoomName] = [];
+                    var room;
+                    room.users = [];
+                    rooms[availableRoomName] = room;
+//                    chatHistory[availableRoomName] = [];
                     console.log("no available room so create: " + availableRoomName);
 
                 } else{
@@ -150,30 +155,33 @@ wsServer.on('request', function (request) {
                 var userInfo = msg.substring(1, msg.length);
                 
                 connection.roomName = availableRoomName;
-                connection.index = rooms[availableRoomName].length;
+                connection.index = rooms[availableRoomName].users.length;
                 connection.userInfo = userInfo;
 
                 chatCode = '0';
                 var i = 0;
                 var returnMsg = '';
-                var count = rooms[availableRoomName].length;
+                var count = rooms[availableRoomName].users.length;
                 for (i = 0; i < count; i++) {
-                    rooms[availableRoomName][i].sendUTF(chatCode + connection.userInfo);
+                    rooms[availableRoomName].users[i].sendUTF(chatCode + connection.userInfo);
                     console.log("send peer return" + chatCode + connection.userInfo + ",");
                     if (i == count - 1) {
-                        returnMsg += rooms[availableRoomName][i].userInfo;
+                        returnMsg += rooms[availableRoomName].users[i].userInfo;
                     } else {
-                        returnMsg += rooms[availableRoomName][i].userInfo + ",";
+                        returnMsg += rooms[availableRoomName].users[i].userInfo + ",";
                     }
                 }
 
                 console.log("send you return" + chatCode + returnMsg);
                 connection.sendUTF(chatCode + returnMsg);
-                rooms[availableRoomName].push(connection);
+                rooms[availableRoomName].users.push(connection);
 
                 return;
             } else if (msg.substring(0, 1) == 'b') { // not game start 
                 echoMsg = true;
+            } else if (msg.substring(0, 1) == 'q') { // close game
+                echoMsg = false;
+                rooms[connection.roomName].isOpen = false;
             }
             if (typeof connection === 'undefined' || typeof connection.roomName === 'undefined'){
                 connection.close();
@@ -182,9 +190,9 @@ wsServer.on('request', function (request) {
             if (echoMsg) {
                 console.log("connection: " + connection);
                 console.log("roomname: " + connection.roomName);
-                for (i = 0; i < rooms[connection.roomName].length; i++) {
+                for (i = 0; i < rooms[connection.roomName].users.length; i++) {
                     if (connection.index == i) continue;
-                    rooms[connection.roomName][i].sendUTF(msg);
+                    rooms[connection.roomName].users[i].sendUTF(msg);
                 }
             }
             console.log("roomName: " + connection.roomName + "/connection: " + connection);
@@ -192,12 +200,12 @@ wsServer.on('request', function (request) {
             //if (typeof connection !== 'undefined' && typeof connection.roomName !== 'undefined' && rooms.hasOwnProperty(connection.roomName)){
             //    rooms[connection.roomName].forEach(myFunction);
             //}
-            if(!skipHistory){
-                chatHistory[connection.roomName].push(chatCode + msgContent);
-                if (chatHistory[connection.roomName].length > 50){
-                    chatHistory[connection.roomName].shift();
-                }
-            }
+//            if(!skipHistory){
+//                chatHistory[connection.roomName].push(chatCode + msgContent);
+//                if (chatHistory[connection.roomName].length > 50){
+//                    chatHistory[connection.roomName].shift();
+//                }
+//            }
 //            console.log("peers: " + rooms[roomName].length);
 
             function myFunction(peer) {
@@ -215,27 +223,27 @@ wsServer.on('request', function (request) {
         console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected from ' + connection.roomName);
         
         if(typeof connection !== 'undefined' && typeof connection.roomName !== 'undefined' && rooms.hasOwnProperty(connection.roomName)){
-                rooms[connection.roomName].forEach(myFunction);            
+            rooms[connection.roomName].users.forEach(myFunction);
             function myFunction(peer) {
                 peer.sendUTF('2' + connection.userName);
             }
         
 //        if(rooms.indexOf(connection.roomName) >= 0){
-            const index = rooms[connection.roomName].indexOf(connection);
+            const index = rooms[connection.roomName].users.indexOf(connection);
             console.log("peer index in chatRoom " + index);
-            console.log("chatRoom " + connection.roomName + " users left : " + rooms[connection.roomName].length);
+            console.log("chatRoom " + connection.roomName + " users left : " + rooms[connection.roomName].users.length);
             
             if (index > -1) {
-                rooms[connection.roomName].splice(index, 1);
+                rooms[connection.roomName].users.splice(index, 1);
             }
 
-            if (rooms[connection.roomName].length == 0) {
+            if (rooms[connection.roomName].users.length == 0) {
                 console.log("no one left so erase room. room count: " + rooms.length);
                 rooms.splice(rooms.indexOf(rooms[connection.roomName]), 1);
                 console.log("no one left so erase room. room count: " + rooms.length);
             }
 //        }
-            console.log("disconnected total user count in room " + connection.roomName + "/ left count: " + rooms[connection.roomName].length);
+            console.log("disconnected total user count in room " + connection.roomName + "/ left count: " + rooms[connection.roomName].users.length);
         }
     });
 });
