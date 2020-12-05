@@ -133,7 +133,7 @@ wsServer.on('request', function (request) {
                 for (var key in rooms) {
                     // check if the property/key is defined in the object itself, not in parent
                     if (rooms.hasOwnProperty(key) && rooms[key].users.length < 2 && rooms[key].isOpen) {
-                        console.log('room found: ' + key);
+                        console.log('room found: ' + key + ' isopen: ' + rooms[key].isOpen);
                         isRoomAvailable = true;
                         availableRoomName = key;
                         break;
@@ -185,6 +185,7 @@ wsServer.on('request', function (request) {
             } else if (msg.substring(0, 1) == 'q') { // close game
                 echoMsg = false;
                 rooms[connection.roomName].isOpen = false;
+                console.log("game closed: " + connection.roomName);
             }
             if (typeof connection === 'undefined' || typeof connection.roomName === 'undefined'){
                 connection.close();
