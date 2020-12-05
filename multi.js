@@ -66,9 +66,10 @@ wsServer.on('request', function (request) {
                 console.log("room name: " + roomName);
 
                 if (rooms[roomName] === undefined) {
-                    var room;
-                    room.isOpen = true;
-                    room.users = [];
+                    var room = {
+                        isOpen: true,
+                        users: []
+                    };
                     rooms[roomName] = room;
 //                    chatHistory[roomName] = [];
                     //                    console.log("create room: " + roomName);
@@ -141,8 +142,10 @@ wsServer.on('request', function (request) {
 
                 if (!isRoomAvailable) {
                     availableRoomName = 'r' + rooms.length + '_' + Math.floor((Math.random() * 100));
-                    var room;
-                    room.users = [];
+                    var room = {
+                        isOpen: true,
+                        users: []
+                    };
                     rooms[availableRoomName] = room;
 //                    chatHistory[availableRoomName] = [];
                     console.log("no available room so create: " + availableRoomName);
