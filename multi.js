@@ -52,7 +52,8 @@ wsServer.on('request', function (request) {
             var msg = message.utf8Data;
             console.log('Received Message: ' + msg);
             var msgBroadcast = '';
-            
+
+            var underBarIndex = msg.indexOf('_');
             var chatCode = 0; // 0-join, 1-msg, 2-quit
             var msgContent = msg.substr(underBarIndex + 1, msg.length - underBarIndex - 1);
             
@@ -60,7 +61,7 @@ wsServer.on('request', function (request) {
             var echoMsg = true;
             chatCode = msg.substring(0, 1);
             if (msg.substring(0, 1) == '0') { // join or create
-                var underBarIndex = msg.indexOf('_');
+
                 var roomName = msg.substring(1, underBarIndex);
                 console.log("underbar index: " + underBarIndex);
                 console.log("room name: " + roomName);
