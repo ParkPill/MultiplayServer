@@ -50,7 +50,7 @@ wsServer.on('request', function (request) {
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             var msg = message.utf8Data;
-            console.log('Received Message: ' + msg);
+            //console.log('Received Message: ' + msg);
             var msgBroadcast = '';
 
             var underBarIndex = msg.indexOf('_');
@@ -126,7 +126,7 @@ wsServer.on('request', function (request) {
             } else if (msg.substring(0, 1) == '8') { // unit dead
 
             } else if (msg.substring(0, 1) == '9') { // unit created
-
+                
             } else if (msg.substring(0, 1) == 'a') { // quick match
                 // requesting data -> 0username_unitdata(34_3:index_level),unitdata
                 var isRoomAvailable = false;
@@ -193,15 +193,15 @@ wsServer.on('request', function (request) {
                 return;
             }
             if (echoMsg) {
-                console.log("connection: " + connection);
-                console.log("roomname: " + connection.roomName);
+                //console.log("connection: " + connection);
+                //console.log("roomname: " + connection.roomName);
                 for (i = 0; i < rooms[connection.roomName].users.length; i++) {
                     if (connection.index == i) continue;
                     rooms[connection.roomName].users[i].sendUTF(msg);
                 }
             }
-            console.log("roomName: " + connection.roomName + "/connection: " + connection);
-            console.log("connection.roomName: " + connection.roomName);
+            //console.log("roomName: " + connection.roomName + "/connection: " + connection);
+            //console.log("connection.roomName: " + connection.roomName);
             //if (typeof connection !== 'undefined' && typeof connection.roomName !== 'undefined' && rooms.hasOwnProperty(connection.roomName)){
             //    rooms[connection.roomName].forEach(myFunction);
             //}
